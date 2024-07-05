@@ -1,0 +1,112 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="icon" href="data:">
+<title>server memo</title>
+</head><body>
+<h1>server memo</h1>
+<textarea id=ta></textarea><br>
+<button id=btnsave>save on server</button>
+<hr>
+<button id=btnprikey>get prikey</button> <button id=btnseckey>get seckey</button><br>
+<button id=btnprikey2>set prikey</button> <button id=btnseckey2>set seckey</button><br>
+<button id=btninit>init prikey and seckey</button>
+<hr>
+<a href=https://github.com/code4fukui/servermemo/>src on GitHub</a><br>
+
+<script type="module">
+import * as sec from "https://code4fukui.github.io/sec.js/sec.js";
+import { Base64URL } from "https://code4fukui.github.io/Base64URL/Base64URL.js";
+import { fetchSignedCBOR } from "https:///code4fukui.github.io/wsutil/fetchSignedCBOR.js";
+import { TAI64N } from "https://code4fukui.github.io/TAI64N-es/TAI64N.js";
+
+const sprikey = localStorage.getItem("sprikey");
+let prikey = sprikey ? Base64URL.decode(sprikey) : sec.prikey();
+localStorage.setItem("sprikey", Base64URL.encode(prikey));
+let pubkey = sec.pubkey(prikey);
+console.log("prikey", prikey);
+console.log("pubkey", pubkey);
+
+const sseckey = localStorage.getItem("sseckey");
+let seckey = sseckey ? Base64URL.decode(sseckey) : sec.prikey();
+localStorage.setItem("sseckey", Base64URL.encode(seckey));
+
+const fn = "memo.txt";
+const endpoint = "/api/";
+
+const putMemo = async () => {
+  const txt = ta.value;
+  const data = new TextEncoder().encode(txt);
+  const crypted = sec.encrypt(seckey, data);
+  const req = { func: "PUT", dt: TAI64N.now(), data: crypted };
+  const res = await fetchSignedCBOR(endpoint + fn, req, prikey, pubkey);
+  console.log(res);
+  if (res != "ok") {
+    alert("err! try again");
+  }
+};
+
+const getMemo = async () => {
+  const req = { func: "GET", dt: TAI64N.now() };
+  const res = await fetchSignedCBOR(endpoint + fn, req, prikey, pubkey);
+  console.log(res);
+  if (!res) {
+    ta.value = "";
+    return;
+  }
+  const data = sec.decrypt(seckey, res);
+  if (!data) {
+    alert("err!");
+    return;
+  }
+  console.log("data", data)
+  const txt = new TextDecoder().decode(data);
+  console.log(txt);
+  ta.value = txt;
+};
+await getMemo();
+
+btnprikey.onclick = () => {
+  prompt("prikey", Base64URL.encode(prikey));
+};
+btnseckey.onclick = () => {
+  prompt("seckey", Base64URL.encode(seckey));
+};
+btnprikey2.onclick = () => {
+  const prikey2 = prompt("prikey");
+  if (prikey2) {
+    prikey = Base64URL.decode(prikey2);
+    pubkey = sec.pubkey(prikey);
+    localStorage.setItem("sprikey", Base64URL.encode(prikey));
+  }
+};
+btnseckey2.onclick = async () => {
+  const seckey2 = prompt("seckey");
+  if (seckey2) {
+    seckey = Base64URL.decode(seckey2);
+    localStorage.setItem("sseckey", Base64URL.encode(seckey));
+    await getMemo();
+  }
+};
+
+btnsave.onclick = async () => {
+  await putMemo();
+};
+btninit.onclick = () => {
+  let prikey = sec.prikey();
+  localStorage.setItem("sprikey", Base64URL.encode(prikey));
+  let pubkey = sec.pubkey(prikey);
+  let seckey = sec.prikey();
+  localStorage.setItem("sseckey", Base64URL.encode(seckey));
+  ta.value = "";
+};
+
+</script>
+
+<style>
+textarea {
+  margin: 1em;
+  width: 90vw;
+  height: 15em;
+}
+a {
+  color: gray !important;
+}
+</style>

@@ -1,0 +1,29 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="icon" href="data:">
+<script type="module">
+import * as sec from "https://code4fukui.github.io/sec.js/sec.js";
+import { Base64URL } from "https://code4fukui.github.io/Base64URL/Base64URL.js";
+import { fetchCBOR } from "https://js.sabae.cc/fetchCBOR.js";
+
+const sprikey = localStorage.getItem("sprikey");
+const prikey = sprikey ? Base64URL.decode(sprikey) : sec.prikey();
+localStorage.setItem("sprikey", Base64URL.encode(prikey));
+const pubkey = sec.pubkey(prikey);
+console.log("prikey", prikey);
+console.log("pubkey", pubkey);
+const remotepubkey = Base64URL.decode("xsPBu65X8dscFjUIqECDjT1VcNHwa3GNx2PGkd6d-JA");
+console.log("remotepubkey", remotepubkey);
+
+const data = new TextEncoder().encode("はろー");
+
+const fn = "memo.txt";
+const endpoint = "/api/" + Base64URL.encode(remotepubkey) + "/" + fn;
+const sharekey = sec.sharekey(prikey, remotepubkey);
+  console.log("sharekey", sharekey);
+const encrypt = sec.encrypt(sharekey, data);
+const res = await fetchCBOR(endpoint, {
+  userpubkey: pubkey,
+  data: encrypt
+});
+console.log(res);
+
+</script>
