@@ -90,10 +90,10 @@ btnsave.onclick = async () => {
   await putMemo();
 };
 btninit.onclick = () => {
-  let prikey = sec.prikey();
+  prikey = sec.prikey();
   localStorage.setItem("sprikey", Base64URL.encode(prikey));
-  let pubkey = sec.pubkey(prikey);
-  let seckey = sec.prikey();
+  pubkey = sec.pubkey(prikey);
+  seckey = sec.prikey();
   localStorage.setItem("sseckey", Base64URL.encode(seckey));
   ta.value = "";
 };
