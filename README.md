@@ -1,37 +1,21 @@
 # servermemo
-日本語のREADMEはこちらです: [README.ja.md](README.ja.md)
 
-A simple server-based memo application, allowing users to securely store and retrieve their notes.
+A Web/Code project by [Code for FUKUI](https://github.com/code4fukui).
 
-## Features
-- Secure storage of memos using encryption
-- Ability to save and retrieve memos on the server
-- Generation and management of public and secret keys
+**Live demo**: https://code4fukui.github.io/servermemo/
 
-## Requirements
-This project requires Deno to be installed on the server.
+## Technology Stack
 
-## Usage
-1. Clone the repository:
-```
-git clone https://github.com/code4fukui/servermemo.git
-```
-2. Change to the project directory:
-```
-cd servermemo
-```
-3. Start the server:
-```
-deno run --allow-net --allow-read --allow-write servermemo.js
-```
-4. Access the application in your web browser at `http://localhost:8000`.
 
-## Data / API
-The application uses the following API endpoints:
-- `POST /api/`: Saves a memo to the server
-- `GET /api/`: Retrieves a memo from the server
+## Installation & Setup
 
-The memos are stored in the `data/` directory, with file names based on the user's public key.
+No build step required. Clone the repository and open `index.html` in a browser,
+or visit the live demo at https://code4fukui.github.io/servermemo/
+
+## Contributing
+
+Contributions are welcome. Please open an issue or pull request on GitHub.
 
 ## License
-This project is licensed under the [MIT License](LICENSE).
+
+MIT License. See [LICENSE](./LICENSE) for details.
